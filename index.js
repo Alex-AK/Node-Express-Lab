@@ -38,6 +38,24 @@ server.post('/api/posts', (req, res) => {
     .catch(err => res.status(err.code).json({ success: false, message }));
 });
 
+server.put('/api/posts/:id', (req, res) => {
+  const { id } = req.params;
+  const change = req.body;
+
+  db.update(id, change)
+    .then(updated => {
+      if (updated) {
+        res.status(200).json({ success: true, updated });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "Cannot find the hub you're looking for"
+        });
+      }
+    })
+    .catch(err => res.status(err.code).json({ success: false, message }));
+});
+
 server.listen(4000, () => {
   console.log('running');
 });
