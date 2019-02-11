@@ -6,10 +6,15 @@ const server = express();
 server.use(express.json());
 // add your server code starting here
 
-console.log(db.posts);
-
 server.get('/api/posts', (req, res) => {
   db.find()
+    .then(posts => res.status(200).json({ success: true, posts }))
+    .catch(err => res.status(err.code).json({ success: false, message }));
+});
+
+server.get('/api/posts/:id', (req, res) => {
+  const id = req.params.id;
+  db.findById(id)
     .then(posts => res.status(200).json({ success: true, posts }))
     .catch(err => res.status(err.code).json({ success: false, message }));
 });
