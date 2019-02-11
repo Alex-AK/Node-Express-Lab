@@ -11,7 +11,16 @@ console.log(db.posts);
 server.get('/api/posts', (req, res) => {
   db.find()
     .then(posts => res.status(200).json({ success: true, posts }))
-    .catch(erc => res.status(err.code).json({ success: false, message }));
+    .catch(err => res.status(err.code).json({ success: false, message }));
+});
+
+server.delete('/api/posts/:id', (req, res) => {
+  const id = req.params.id;
+  db.remove(id)
+    .then(deleted => res.status(204).end())
+    .catch(err =>
+      res.status(err.code).json({ success: false, message: err.message })
+    );
 });
 
 server.post('/api/posts', (req, res) => {
