@@ -1,11 +1,18 @@
 // import your node modules
-
-const db = require('../data/db.js');
-
-// add your server code starting here
 const express = require('express');
-
+const db = require('./data/db.js');
 const server = express();
+
+server.use(express.json());
+// add your server code starting here
+
+console.log(db.posts);
+
+server.get('/api/posts', (req, res) => {
+  db.find()
+    .then(posts => res.status(200).json({ success: true, posts }))
+    .catch(erc => res.status(err.code).json({ success: false, message }));
+});
 
 server.listen(4000, () => {
   console.log('running');
