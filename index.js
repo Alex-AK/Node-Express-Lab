@@ -9,14 +9,24 @@ server.use(express.json());
 server.get('/api/posts', (req, res) => {
   db.find()
     .then(posts => res.status(200).json({ success: true, posts }))
-    .catch(err => res.status(err.code).json({ success: false, message }));
+    .catch(err =>
+      res.status(err.code).json({
+        success: false,
+        error: 'The posts information could not be retrieved.'
+      })
+    );
 });
 
 server.get('/api/posts/:id', (req, res) => {
   const id = req.params.id;
   db.findById(id)
     .then(posts => res.status(200).json({ success: true, posts }))
-    .catch(err => res.status(err.code).json({ success: false, message }));
+    .catch(err =>
+      res.status(err.code).json({
+        success: false,
+        error: 'The posts information could not be retrieved.'
+      })
+    );
 });
 
 server.delete('/api/posts/:id', (req, res) => {
@@ -29,9 +39,16 @@ server.delete('/api/posts/:id', (req, res) => {
 });
 
 server.post('/api/posts', (req, res) => {
-  const post = req.body;
+  const { title, contents } = req.body;
+  const newPost = { title, contents };
 
-  db.insert(post)
+  if (!title || !contents) {
+    return res.status(500).json({
+      success: false,
+      errorMessage: 'Please provide title and contents for the post.'
+    });
+  }
+  db.insert(newPost)
     .then(post => {
       res.status(201).json({ success: true, post });
     })
