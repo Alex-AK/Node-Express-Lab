@@ -14,6 +14,16 @@ server.get('/api/posts', (req, res) => {
     .catch(erc => res.status(err.code).json({ success: false, message }));
 });
 
+server.post('/api/posts', (req, res) => {
+  const post = req.body;
+
+  db.insert(post)
+    .then(post => {
+      res.status(201).json({ success: true, post });
+    })
+    .catch(err => res.status(err.code).json({ success: false, message }));
+});
+
 server.listen(4000, () => {
   console.log('running');
 });
