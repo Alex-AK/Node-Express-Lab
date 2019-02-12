@@ -64,6 +64,13 @@ router.put('/:id', (req, res) => {
   const { id } = req.params;
   const change = req.body;
 
+  if (!change.title || !change.contents) {
+    return res.status(400).json({
+      success: false,
+      errorMessage: 'Please provide title and contents for the post.'
+    });
+  }
+
   db.update(id, change)
     .then(updated => {
       if (updated) {
@@ -71,11 +78,11 @@ router.put('/:id', (req, res) => {
       } else {
         res.status(404).json({
           success: false,
-          message: "Cannot find the hub you're looking for"
+          message: "Cannot find the post you're looking for"
         });
       }
     })
-    .catch(err => res.status(err.code).json({ success: false, message }));
+    .catch(err => res.status(500).json({ success: false, message }));
 });
 
 router.delete('/:id', (req, res) => {
