@@ -43,7 +43,6 @@ router.get('/:id', (req, res) => {
 
   db.findById(id)
     .then(post => {
-      // console.log(post);
       if (post.length === 0) {
         return res.status(404).json({
           success: false,
