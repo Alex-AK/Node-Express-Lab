@@ -82,15 +82,31 @@ router.put('/:id', (req, res) => {
         });
       }
     })
-    .catch(err => res.status(500).json({ success: false, message }));
+    .catch(err =>
+      res.status(500).json({
+        success: false,
+        error: 'The post information could not be modified.'
+      })
+    );
 });
 
 router.delete('/:id', (req, res) => {
   const id = req.params.id;
   db.remove(id)
-    .then(deleted => res.status(204).end())
+    .then(deleted => {
+      if (!deleted) {
+        res.status(404).json({
+          success: false,
+          message: 'The post with the specified ID does not exist.'
+        });
+      } else {
+        res.status(204).end();
+      }
+    })
     .catch(err =>
-      res.status(err.code).json({ success: false, message: err.message })
+      res
+        .status(500)
+        .json({ success: false, error: 'The post could not be removed' })
     );
 });
 
