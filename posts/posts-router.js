@@ -2,11 +2,36 @@ const express = require('express');
 const db = require('../data/db');
 const router = express.Router();
 
+// incoming base route '/api/posts'
+
+router.post('/', (req, res) => {
+  const { title, contents } = req.body;
+  const newPost = { title, contents };
+
+  if (!title || !contents) {
+    return res.status(400).json({
+      success: false,
+      errorMessage: 'Please provide title and contents for the post.'
+    });
+  } else {
+    db.insert(newPost)
+      .then(post => {
+        res.status(201).json({ success: true, post });
+      })
+      .catch(err =>
+        res.status(500).json({
+          success: false,
+          error: 'There was an error while saving the post to the database'
+        })
+      );
+  }
+});
+
 router.get('/', (req, res) => {
   db.find()
     .then(posts => res.status(200).json({ success: true, posts }))
     .catch(err =>
-      res.status(err.code).json({
+      res.status(500).json({
         success: false,
         error: 'The posts information could not be retrieved.'
       })
@@ -15,40 +40,25 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
   const id = req.params.id;
+
   db.findById(id)
-    .then(posts => res.status(200).json({ success: true, posts }))
+    .then(post => {
+      // console.log(post);
+      if (post.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Cannot find the post you're looking for"
+        });
+      } else {
+        res.status(200).json({ success: true, post });
+      }
+    })
     .catch(err =>
-      res.status(err.code).json({
+      res.status(500).json({
         success: false,
         error: 'The posts information could not be retrieved.'
       })
     );
-});
-
-router.delete('/:id', (req, res) => {
-  const id = req.params.id;
-  db.remove(id)
-    .then(deleted => res.status(204).end())
-    .catch(err =>
-      res.status(err.code).json({ success: false, message: err.message })
-    );
-});
-
-router.post('/', (req, res) => {
-  const { title, contents } = req.body;
-  const newPost = { title, contents };
-
-  if (!title || !contents) {
-    return res.status(500).json({
-      success: false,
-      errorMessage: 'Please provide title and contents for the post.'
-    });
-  }
-  db.insert(newPost)
-    .then(post => {
-      res.status(201).json({ success: true, post });
-    })
-    .catch(err => res.status(err.code).json({ success: false, message }));
 });
 
 router.put('/:id', (req, res) => {
@@ -67,6 +77,15 @@ router.put('/:id', (req, res) => {
       }
     })
     .catch(err => res.status(err.code).json({ success: false, message }));
+});
+
+router.delete('/:id', (req, res) => {
+  const id = req.params.id;
+  db.remove(id)
+    .then(deleted => res.status(204).end())
+    .catch(err =>
+      res.status(err.code).json({ success: false, message: err.message })
+    );
 });
 
 module.exports = router;
